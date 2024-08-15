@@ -1,6 +1,10 @@
 const User = require("../models/User");
 const CustomError = require("../errors");
-const { createTokenUser, attachCookiesToResponse } = require("../utils");
+const {
+  createTokenUser,
+  attachCookiesToResponse,
+  CheckPermission,
+} = require("../utils");
 const getAllUsers = async (req, res) => {
   const users = await User.find({ role: "user" }).select("-password");
   res.status(200).json({ msg: users });
@@ -11,7 +15,7 @@ const getSingleUser = async (req, res) => {
   if (!user) {
     throw new CustomError.NotFoundError("No user with ID ");
   }
-
+  CheckPermission(req.user, user._id);
   res.status(200).json({ msg: user });
 };
 const showCurrentUser = async (req, res) => {

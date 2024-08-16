@@ -8,7 +8,7 @@ const createProduct = async (req, res) => {
   res.send("Create product");
 };
 const getAllProducts = async (req, res) => {
-  const products = await Product.find({}).select("-user");
+  const products = await Product.find({}).select("-user").populate("reviews");
   res.status(200).json({ products, count: products.length });
 };
 const getSingleProduct = async (req, res) => {

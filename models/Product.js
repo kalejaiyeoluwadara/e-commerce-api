@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+
 const ProductSchema = new mongoose.Schema(
   {
     name: {
@@ -34,7 +35,6 @@ const ProductSchema = new mongoose.Schema(
         message: "{VALUE} is not supported",
       },
     },
-
     colors: {
       type: [String],
       default: ["#222"],
@@ -57,6 +57,10 @@ const ProductSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    numOfReviews: {
+      type: Number,
+      default: 0,
+    },
     user: {
       type: mongoose.Types.ObjectId,
       ref: "User",
@@ -65,6 +69,19 @@ const ProductSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true }, // Corrected spelling here
+    toObject: { virtuals: true }, // Corrected spelling here
   }
 );
+
+// Virtual to populate reviews
+ProductSchema.virtual("reviews", {
+  ref: "Review",
+  localField: "_id",
+  foreignField: "product",
+  justOne: false,
+});
+ProductSchema.pre("remove", async function (next) {
+  await this.model("Review").deleteMany({ product: this._id });
+});
 module.exports = mongoose.model("Product", ProductSchema);

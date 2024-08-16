@@ -11,6 +11,7 @@ const {
   deleteProduct,
   uploadImage,
 } = require("../controllers/productController");
+const { getSingleProductReviews } = require("../controllers/reviewController");
 const router = express.Router();
 router
   .route("/")
@@ -24,5 +25,5 @@ router
   .get(getSingleProduct)
   .patch([authenticateUser, authorizePermissions("admin")], updateProduct)
   .delete([authenticateUser, authorizePermissions("admin")], deleteProduct);
-
+router.route("/:id/reviews").get(getSingleProductReviews);
 module.exports = router;

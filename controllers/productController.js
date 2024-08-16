@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const customError = require("../errors");
+const path = require("path");
 const createProduct = async (req, res) => {
   req.body.user = req.user.userId;
   const product = await Product.create(req.body);
@@ -39,7 +40,25 @@ const deleteProduct = async (req, res) => {
   res.status(200).json({ msg: "product removed" });
 };
 const uploadImage = async (req, res) => {
-  res.send("upload prod image");
+  if (!req.files) {
+    throw new customError.BadRequestError("no file provided");
+  }
+  const productImage = req.files.image;
+  if (!productImage.mimetype.startsWith("image")) {
+    throw new customError.BadRequestError("please upload image");
+  }
+  const maxsize = 1024 * 1024;
+  if (productImage.size > maxsize) {
+    throw new customError.BadRequestError(
+      "please upload image smaller than 1mb"
+    );
+  }
+  const imagePath = path.join(
+    __dirname,
+    "../public/uploads/" + `${productImage.name}`
+  );
+  await productImage.mv(imagePath);
+  res.status(200).json({ image: `/uploads/${productImage.name}` });
 };
 module.exports = {
   createProduct,

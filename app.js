@@ -11,6 +11,7 @@ const notFoundMiddleWare = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoute");
+const reviewRouter = require("./routes/reviewRoute");
 const productRouter = require("./routes/productRoute");
 
 app.use(morgan("tiny"));
@@ -30,6 +31,7 @@ app.get("/api/v1", (req, res) => {
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/products", productRouter);
+app.use("/api/v1/reviews", reviewRouter);
 app.use(notFoundMiddleWare);
 app.use(errorHandlerMiddleware);
 const PORT = process.env.PORT || 5000;

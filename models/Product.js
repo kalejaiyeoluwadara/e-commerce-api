@@ -34,9 +34,7 @@ const ProductSchema = new mongoose.Schema(
         message: "{VALUE} is not supported",
       },
     },
-    company: {
-      type: String,
-    },
+
     colors: {
       type: [String],
       default: ["#222"],

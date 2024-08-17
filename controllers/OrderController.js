@@ -3,6 +3,10 @@ const Product = require("../models/Product");
 const CustomError = require("../errors");
 const { CheckPermission } = require("../utils");
 
+const fakeStripeApi = async ({ amount, currency }) => {
+  const client_secret = "somerandomvalue";
+  return { client_secret, amount };
+};
 const getAllOrders = async (req, res) => {
   res.send("All Orders");
 };
@@ -43,14 +47,26 @@ const createOrder = async (req, res) => {
     // calculate subtotal
     subtotal += item.amount * price;
   }
-  console.log(orderItems);
-  console.log(subtotal);
+  const total = tax + shippingFee + subtotal;
+  // get client secret
+  const paymentIntent = await fakeStripeApi({
+    amount: total,
+    currency: "usd",
+  });
 
-  res.send("create order!");
+  const order = await Order.create({
+    orderItems,
+    total,
+    subtotal,
+    tax,
+    shippingFee,
+    client_secret: paymentIntent.client_secret,
+    user: req.user,
+  });
+  res.status(201).json({ order, client_secret: order.clientSecret });
 };
-
 const updateOrder = async (req, res) => {
-  res.send("update order");
+  res.send("create order!");
 };
 module.exports = {
   createOrder,

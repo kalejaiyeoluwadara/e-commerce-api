@@ -81,8 +81,10 @@ const updateOrder = async (req, res) => {
     throw new CustomError.NotFoundError("Order not found");
   }
   CheckPermission(req.user, order.user);
+  order.paymentIntentId = paymentIntentId;
+  order.status = "paid";
+  await order.save();
   res.status(200).json({ order });
-  res.send("create order!");
 };
 module.exports = {
   createOrder,

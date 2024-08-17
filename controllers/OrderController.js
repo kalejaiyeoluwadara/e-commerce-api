@@ -8,13 +8,21 @@ const fakeStripeApi = async ({ amount, currency }) => {
   return { client_secret, amount };
 };
 const getAllOrders = async (req, res) => {
-  res.send("All Orders");
+  const orders = await Order.find({});
+  res.status(200).json({ orders, count: orders.length });
 };
 const getSingleOrder = async (req, res) => {
-  res.send("single order");
+  const { id: orderId } = req.params;
+  const order = await Order.findOne({ _id: orderId });
+  if (!order) {
+    throw new CustomError.NotFoundError("Order not found");
+  }
+  CheckPermission(req.user, order.user);
+  res.status(200).json({ order });
 };
 const getCurrentUserOrders = async (req, res) => {
-  res.send("current user order");
+  const orders = await Order.find({ user: req.user.userId });
+  res.status(200).json({ orders, count: orders.length });
 };
 const createOrder = async (req, res) => {
   const { items: cartItems, tax, shippingFee } = req.body;
@@ -60,12 +68,20 @@ const createOrder = async (req, res) => {
     subtotal,
     tax,
     shippingFee,
-    client_secret: paymentIntent.client_secret,
-    user: req.user,
+    clientSecret: paymentIntent.client_secret,
+    user: req.user.userId,
   });
   res.status(201).json({ order, client_secret: order.clientSecret });
 };
 const updateOrder = async (req, res) => {
+  const { id: orderId } = req.params;
+  const { paymentIntentId } = req.body;
+  const order = await Order.findOne({ _id: orderId });
+  if (!order) {
+    throw new CustomError.NotFoundError("Order not found");
+  }
+  CheckPermission(req.user, order.user);
+  res.status(200).json({ order });
   res.send("create order!");
 };
 module.exports = {
